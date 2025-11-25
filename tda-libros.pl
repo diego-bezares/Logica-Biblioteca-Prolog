@@ -16,4 +16,15 @@
 % ---------------------------------
 
 % Constructores
-initLibro(Id, Titulo, Autor, [])
+initLibro(Id, Titulo, Autor, [Id, Titulo, Autor, true]).
+
+% Predicado de pertenencia
+esLibro([Id, Titulo, ])
+
+
+
+
+
+
+
+
