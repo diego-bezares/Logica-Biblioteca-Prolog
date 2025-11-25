@@ -16,7 +16,7 @@
 initUsuario(Id, Nombre, [Id, Nombre, 0, [], false]).
 
 % Predicado de pertenencia
-Usuario?([Id, Nombre, Deuda, Prestamos, Suspendido]):-
+esUsuario([Id, Nombre, Deuda, Prestamos, Suspendido]):-
   integer(Id),
   string(Nombre),
   number(Deuda),
