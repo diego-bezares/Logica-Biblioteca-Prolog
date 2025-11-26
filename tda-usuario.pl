@@ -35,10 +35,10 @@ setIdUsuario(NuevoId, [Id, Nombre, Deuda, Prestamos, Suspendido], [NuevoId, Nomb
 setNombreUsuario(NuevoNombre, [Id, Nombre, Deuda, Prestamos, Suspendido], [Id, NuevoNombre, Deuda, Prestamos, Suspendido]).
 setDeudaUsuario(NuevaDeuda, [Id, Nombre, Deuda, Prestamos, Suspendido], [Id, Nombre, NuevaDeuda, Prestamos, Suspendido]).
 setSuspendidoUsuario(U, NuevoEstado, NuevoU):-
-  getIdUsuario(U, Id)
-  getNombreUsuario(U, Nombre)
-  getDeudaUsuario(U, Deuda)
-  getPrestamosUsuario(U, Prestamos)
+  getIdUsuario(U, Id),
+  getNombreUsuario(U, Nombre),
+  getDeudaUsuario(U, Deuda),
+  getPrestamosUsuario(U, Prestamos),
   NuevoU = [Id, Nombre, Deuda, Prestamos, NuevoEstado].
   
 
