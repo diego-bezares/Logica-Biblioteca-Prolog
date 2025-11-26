@@ -19,7 +19,9 @@
 initLibro(Id, Titulo, Autor, [Id, Titulo, Autor, true]).
 
 % Predicado de pertenencia
-esLibro([Id, Titulo, ])
+esLibro([Id, Titulo, Autor, Disponibilidad]):-
+  interger(Id),
+  
 
 
 
