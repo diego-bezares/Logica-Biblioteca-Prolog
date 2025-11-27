@@ -64,9 +64,9 @@ getFechaInicialBiblioteca([_, _, _, _, _, _, _, _, FechaInicial], FechaInicial).
 
 % Modificadores
 setLibrosBiblioteca(NuevosLibros, Biblioteca, BibliotecaMod):-
-  modificar_posicion(0, NUevosLibros, Biblioteca, BibliotecaMod).
+  modificar_posicion(0, NuevosLibros, Biblioteca, BibliotecaMod).
 setUsuariosBiblioteca(NuevosUsuarios, Biblioteca, BibliotecaMod):-
-  modificar_posicion(1, NUevosUsuarios, Biblioteca, BibliotecaMod).
+  modificar_posicion(1, NuevosUsuarios, Biblioteca, BibliotecaMod).
 setPrestamosBiblioteca(NuevosPrestamos, Biblioteca, BibliotecaMod):-
   modificar_posicion(2, NuevosPrestamos, Biblioteca, BibliotecaMod).
 setMaxLibrosUsuarioBiblioteca(NuevoMaxLibrosUsuario, Biblioteca, BibliotecaMod):-
