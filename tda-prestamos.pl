@@ -17,6 +17,19 @@
 % ---------------------------------
 % ---------------------------------
 
+
+% =================================
+% ======== Predicado Aux ==========
+% =================================
+
+modificar_posicion(Indice, NuevoValor, Lista, ListaModificada):-
+  nth0(Indice, Lista, _, Resto),
+  nth0(Indice, ListaModificada, NuevoValor, Resto).
+
+% =================================
+% =================================
+
+
 % Constructores
 initPrestamo(Id, IdUsuario, IdLibro, FechaPrstamo, DiasSolicitados, [Id, IdUsuario, IdLibro, FechaPrstamo, DiasSolicitados]).
 
@@ -36,11 +49,16 @@ getFechaPrestamo([_, _, _, FechaPrestamo, _], FechaPrestamo).
 getDiasSolicitadosPrestamo([_, _, _, _, DiasSolicitados], DiasSolicitados).
 
 % Modificadores
-setIdPrestamo(NuevoId, [Id, IdUsuario, IdLibro, FechaPrestamo, DiasSolicitados], [NuevoId, IdUsuario, IdLibro, FechaPrestamo, DiasSolicitados]).
-setIdUsuarioPrestamo(NuevoIdUsuario, [Id, IdUsuario, IdLibro, FechaPrestamo, DiasSolicitados], [Id, NuevoIdUsuario, IdLibro, FechaPrestamo, DiasSolicitados]).
-setIdLibroPrestamo(NuevoIdLibro, [Id, IdUsuario, IdLibro, FechaPrestamo, DiasSolicitados], [Id, IdUsuario, NuevoIdLibro, FechaPrestamo, DiasSolicitados]).
-setFechaPrestamo(NuevaFechaPrestamo, [Id, IdUsuario, IdLibro, FechaPrestamo, DiasSolicitados], [Id, IdUsuario, IdLibro, NuevaFechaPrestamo, DiasSolicitados]).
-setDiasSolicitadosPrestamo(NuevosDiasSolicitados, [Id, IdUsuario, IdLibro, FechaPrestamo, DiasSolicitados], [Id, IdUsuario, IdLibro, FechaPrestamo, NuevosDiasSolicitados]).
+setIdPrestamo(NuevoId, Prestamo, PrestamoModificado):-
+  modificar_posicion(0, NuevoId, Prestamo, PrestamoModificado).
+setIdUsuarioPrestamo(NuevoIdUsuario, Prestamo, PrestamoModificado):-
+  modificar_posicion(1, NuevoIdUsuario, Prestamo, PrestamoModificado).
+setIdLibroPrestamo(NuevoIdLibro, Prestamo, PrestamoModificado):-
+  modificar_posicion(2, NuevoIdLibro, Prestamo, PrestamoModificado).
+setFechaPrestamo(NuevaFechaPrestamo, Prestamo, PrestamoModificado):-
+  modificar_posicion(3, NuevaFechaPrestamo, Prestamo, PrestamoModificado).
+setDiasSolicitadosPrestamo(NuevosDiasSolicitados, Prestamo, PrestamoModificado):-
+  modificar_posicion(4, NuevosDiasSolicitados, Prestamo, PrestamoModificado).
 
 
 
