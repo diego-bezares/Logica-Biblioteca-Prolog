@@ -12,6 +12,20 @@
 %  prestamos -> lista 
 %  suspendido -> booleano
 
+:- module(tda-usuario, [
+              initUsuario/3,
+              esUsuario/1,
+              getIdUsuario/2,
+              getNombreUsuario/2,
+              getDeudaUsuario/2,
+              getPrestamosUsuario/2,
+              getSuspendidoUsuario/2,
+              setIdUsuario/3,
+              setNombreUsuario/3,
+              setDeudaUsuario/3,
+              setSuspendidoUsuario/3  
+          ])
+
 % Constructores
 initUsuario(Id, Nombre, [Id, Nombre, 0, [], false]).
 
