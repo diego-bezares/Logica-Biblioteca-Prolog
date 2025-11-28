@@ -24,7 +24,7 @@
               setNombreUsuario/3,
               setDeudaUsuario/3,
               setSuspendidoUsuario/3  
-          ])
+          ]).
 
 % Constructores
 initUsuario(Id, Nombre, [Id, Nombre, 0, [], false]).
