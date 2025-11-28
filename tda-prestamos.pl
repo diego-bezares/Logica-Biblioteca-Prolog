@@ -17,6 +17,22 @@
 % ---------------------------------
 % ---------------------------------
 
+:- module(tda-prestamos, [
+              initPrestamo/6,
+              esPrestamo/1,
+              getIdPrestamo/2,
+              getIdUsuarioPrestamo/2,
+              getIdLibroPrestamo/2,
+              getFechaPrestamo/2,
+              getDiasSolicitadosPrestamo/2,
+              setIdPrestamo/3,
+              setIdUsuarioPrestamo/3,
+              setIdLibroPrestamo/3,
+              setFechaPrestamo/3  
+              setDiasSolicitadosPrestamo/3
+          ]).
+
+
 
 % =================================
 % ======== Predicado Aux ==========
