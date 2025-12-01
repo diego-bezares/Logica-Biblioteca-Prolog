@@ -15,6 +15,20 @@
 % ---------------------------------
 % ---------------------------------
 
+
+:- module(tda-libros, [
+              initLibro/4,
+              esLibro/1,
+              getIdLibro/2,
+              getTitulodLibro/2,
+              getAutorLibro/2,
+              setIdLibro/3,
+              setTituloLibro/3,
+              setAutorLibro/3,
+              setDisponibilidadLibro/3  
+          ]).
+
+
 % Constructores
 initLibro(Id, Titulo, Autor, Libro):-
   string_lower(Titulo),
