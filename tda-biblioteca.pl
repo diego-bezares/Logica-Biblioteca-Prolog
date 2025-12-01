@@ -23,6 +23,31 @@
 %---------------------------------
 
 
+:- module(tda-biblioteca, [
+              initBiblioteca/10,
+              esBiblioteca/1,
+              getLibrosBiblioteca/2,
+              getUsuariosBiblioteca/2,
+              getPrestamosBiblioteca/2,
+              getMaxLibrosUsuarioBiblioteca/2,
+              getDiasMaxPrestamoBiblioteca/2,
+              getTasaMultaDiariaBiblioteca/2,
+              getLimiteDeudaBiblioteca/2,
+              getDiasMaxRetrasoBiblioteca/2,
+              getFechaInicialBiblioteca/2,
+              setLibrosBiblioteca/3,
+              setUsuariosBiblioteca/3,
+              setPrestamosBiblioteca/3,
+              setMaxLibrosUsuarioBiblioteca/3,
+              setDiasMaxPrestamoBiblioteca/3,
+              setTasaMultaDiariaBiblioteca/3,
+              setLimiteDeudaBiblioteca/3,
+              setDiasMaxRetrasoBiblioteca/3,
+              setFechaInicialBiblioteca/3
+          ]).
+
+
+
 % =================================
 % ======== Predicado Aux ==========
 % =================================
