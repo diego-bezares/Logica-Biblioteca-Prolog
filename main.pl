@@ -3,6 +3,30 @@
 :- use_module(tda-prestamos).
 :- use_module(tda-biblioteca).
 
+
+==============================================
+============== FUNCIONES AUX =================
+==============================================
+
+% Convierte el string "DD/MM" a un entero con los dias totales.
+fechaToDias(Fecha, DiasTotales):-
+ split_string(Fecha, "/", "", [DiasStr, MesStr]),
+ number_string(Dia, DiaStr),
+ number:string(Mes, MesStr),
+ DiasTotales is ((Mes - 1) * 30) + Dias.
+
+% Convierte un entero con los dias totales a un string "DD/MM".
+diasToFecha(DiasTotales, Fecha):-
+ Mes is ((DiasTotales - 1) // 30) + 1
+ Dias is ((DiasTotales - 1) mod 30) + 1
+ format(string(Fecha), "~|~`0t~d~2+/~|~`0t~d~2+", [Dia, Mes]).
+
+ =============================================
+ =============================================
+ =============================================
+ 
+
+
 % RF02
 % Dom -> int id, string nombre, Usuario usuario
 crearUsuario(Id, Nombre, U):- initUsuario(Id, Nombre, U).
@@ -23,18 +47,142 @@ crearPrestamo(Id, IdUsuario, IdLibro, FechaPrestamo, DiasSolicitados, P):- initP
 
 % RF06
 % Dom -> (Biblioteca) biblioteca, (Libro) libro, (Biblioteca) biblioteca
-
-% Caso 1: YA EXISTE el libro, retorna la misma biblioteca entrante.
+% Caso 1: YA EXISTE el libro, devuelve la misma biblioteca entrante.
 agregarLibro(BIn, NuevoLibro, BIn):-
   getIdLibro(NuevoLibro, IdLibro),
   getLibrosBiblioteca(BIn, Libros),
-  member([IdLibro, _, _], Libros).
+  member([IdLibro, _, _, _], Libros).
 
+% Caso 2: NO EXISTE el libro, devuelve una nueva lista con el libro agregado al final.
 agregarLibro(BIn, NuevoLibro, BOut):-
   getIdLibro(NuevoLibro, IdLibro),
   getLibrosBiblioteca(BIn, Libros),
-  not(member([IdLibro, _, _], Libros)),
-  
+  not(member([IdLibro, _, _, _], Libros)),
+  append(Libros, [NuevoLibro], NuevosLibros),
+  setLibrosBiblioteca(NuevosLibros, BIn, BOut).
+
+% RF07
+% Dom -> (Biblioteca) biblioteca, (Usuario) usuario, (Biblioteca) biblioteca
+% Caso 1: YA EXISTE el usuario, devuelve la lista sin cambios.
+registrarUsuario(BIn, NuevoUsuario, BIn):-
+ getIdUsuario(NuevoUsuario, IdUsuario),
+  getUsuariosBiblioteca(BIn, Usuarios),
+  not(member([IdUsuario, _, _, _, _], Usuarios)).
+
+% Caso 2: NO EXISTE el usuario, devuelve una nueva lista con el usuario agregado al final.
+ registrarUsuario(BIn, NuevoUsuario, BIn):-
+  getIdUsuario(NuevoUsuario, IdUsuario),
+  getUsuariosBiblioteca(BIn, Usuarios),
+  member([IdUsuario, _, _, _, _], Usuarios),
+  append(Usuarios, [NuevoUsuario], NuevosUsuarios),
+  setUsuariosBiblioteca(NuevosUsuarios, BIn, BOut).
+
+% RF08
+% Dom -> (Biblioteca) biblioteca, int id, (Usuario) usuario o false.
+obtenerUsuario(BIn, IdBuscado, UsuarioEncontado):-
+ getUsuariosBiblioteca(BIn, ListaUsuarios),
+ member(UsuarioEncontrado, ListaUsuarios),
+ getIdUsuario(UsuarioEncontrado, IdEncontrado),
+ IdEncontado = IdBuscado.
+
+% RF09
+% Dom -> (Biblioteca) biblioteca, string criterio, (string/int) valor, (Libro) o false.
+% Caso 1: Cuando el criterio es el string "id".
+buscarLibro(Biblioteca, "id", IdBuscado, LibroEncontrado):-
+ getLibrosBiblioteca(Biblioteca, ListaLibros),
+ member(LibroEncontrado, ListaLibros),
+ getIdLibro(LibroEncontrado, IdEncontrado),
+ IdEncontrado = IdBuscado,!.
+
+% Caso 2: Cuando el criterio es el string "titulo".
+buscarLibro(Biblioteca, "titulo", ValorBuscado, LibroEncontrado):-
+ getLibrosBiblioteca(Biblioteca, ListaLibros),
+ string_lower(ValorBuscado, BuscMin),
+ member(LibroEncontrado, ListaLibros),
+ getTituloLibro(LibroEncontrado, TituloEncontrado),
+ sub_string(TituloEncontrado, _, _, _, BuscMin),!.
+
+% Caso 3: Cuando el criterio es el string "autor".
+BuscarLibro(Biblioteca, "autor", ValorBuscado, LibroEncontrado):-
+ getLibrosBiblioteca(Biblioteca, ListaLibros),
+ string_lower(ValorBuscado, BuscMin),
+ member(LibroEncontrado, ListaLibros),
+ getAutorLibro(LibroEncontrado, AutorEncontrado),
+ sub_string(AutorEncontrado, _, _, _, BuscMin),!.
+
+% RF10
+% Dom -> (Libro) libro, int id
+getLibroId(Libro, IdLibro):- getIdLibro(Libro, IdLibro).
+
+% RF11
+% Dom -> (Biblioteca) biblioteca, string fecha
+getFecha(Biblioteca, Fecha):- getFechaInicialBiblioteca(Biblioteca, Fecha).
+
+% RF12
+% Dom -> (Biblioteca) biblioteca, int id-libro
+isLibroDisponible(Biblioteca, IdLibro):-
+ buscarLibro(Biblioteca, "id", IdLibro, Libro),
+ getDisponibilidadLibro(Libro, Disponibilidad),
+ Disponibilidad == true.
+
+% RF13
+% Dom -> (Usuario) usuario
+isUsuarioSuspendido(Usuario):-
+ getSuspendidoUsuario(Usuario, Estado),
+ Estado == false.
+
+% RF14
+% Dom -> (Usuario) usuario, int deuda
+obtenerDeuda(Usuario, Deuda):- getDeudaUsuario(Usuario, Deuda).
+
+% RF15
+% Dom -> (Prestamo) prestamo, string fecha
+obtenerFechaVencimiento(Prestamo, Fecha):- 
+ getFechaPrestamo(Prestamo, FechaPrestamo),
+ getDiasSolicitadosPrestamo(Prestamo, DiasSoli),
+ fechaToDias(FechaPrestamo, DiasFecha),
+ DiasVencimiento is DiasFecha + DiasSoli,
+ diasToFecha(DiasVencimiento, Fecha).
+
+% RF16
+% Dom -> string fecha-vencimiento, string fecha-actual, int dias-retraso
+% Caso 1: La fecha de vencimiento excede la fecha actual.
+calcularDiasRetraso(FechaVencimiento, FechaActual, 0):-
+ fechaToDias(FechaVencimiento, DiasVencimiento),
+ fechaToDias(FechaActual, DiasActual),
+ DiasActual =< DiasVencimiento.
+
+% Caso 2: La fecha actual excede la fecha de vencimiento.
+calcularDiasRetraso(FechaVencimiento, FechaActual, DiasRetraso):-
+ fechaToDias(FechaVencimiento, DiasVencimiento),
+ fechaToDias(FechaActual, DiasActual),
+ DiasActual > DiasVencimiento,
+ DiasRetraso is DiasActual - DiasVencimiento.
+
+% RF17
+% Dom -> (Prestamo) prestamo, string fecha-actual, int tasa-multa-diaria, int multa
+calcularMulta(Prestamo, FechaActual, TasaMultaDiaria, Multa):-
+ obtenerFechaVencimiento(Prestamo, FechaVencimiento),
+ calcularDiasRetraso(FechaVencimiento, FechaActual, DiasRetraso),
+ Multa is TasaMultaDiaria * DiasRetraso.
+
+% RF18
+
+
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
 
 
 
