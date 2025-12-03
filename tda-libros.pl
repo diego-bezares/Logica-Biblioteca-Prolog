@@ -31,9 +31,9 @@
 
 % Constructores
 initLibro(Id, Titulo, Autor, Libro):-
-  string_lower(Titulo),
-  string_lower(Autor),
-  Libro = [Id, Titulo, Autor, true].
+  string_lower(Titulo, TituloMin),
+  string_lower(Autor, AutorMin),
+  Libro = [Id, TituloMin, AutorMin, true].
 
 % Predicado de pertenencia
 esLibro([Id, Titulo, Autor, Disponibilidad]):-
