@@ -23,6 +23,7 @@
               setIdUsuario/3,
               setNombreUsuario/3,
               setDeudaUsuario/3,
+              setPrestamosUsuario/3,
               setSuspendidoUsuario/3  
           ]).
 
@@ -48,6 +49,7 @@ getSuspendidoUsuario([_, _, _, _, Suspendido], Suspendido).
 setIdUsuario(NuevoId, [Id, Nombre, Deuda, Prestamos, Suspendido], [NuevoId, Nombre, Deuda, Prestamos, Suspendido]).
 setNombreUsuario(NuevoNombre, [Id, Nombre, Deuda, Prestamos, Suspendido], [Id, NuevoNombre, Deuda, Prestamos, Suspendido]).
 setDeudaUsuario(NuevaDeuda, [Id, Nombre, Deuda, Prestamos, Suspendido], [Id, Nombre, NuevaDeuda, Prestamos, Suspendido]).
+setPrestamosUsuario(NuevosPrestamos, [Id, Nombre, Deuda, Prestamos, Suspendido], [Id, Nombre, Deuda, NuevosPrestamos, Suspendido]).
 setSuspendidoUsuario(U, NuevoEstado, NuevoU):-
   getIdUsuario(U, Id),
   getNombreUsuario(U, Nombre),
