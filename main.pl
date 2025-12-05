@@ -5,7 +5,7 @@
 
 
 ==============================================
-============== FUNCIONES AUX =================
+============== PREDICADOS AUX ================
 ==============================================
 
 % Convierte el string "DD/MM" a un entero con los dias totales.
@@ -21,6 +21,32 @@ diasToFecha(DiasTotales, Fecha):-
  Dias is ((DiasTotales - 1) mod 30) + 1
  format(string(Fecha), "~|~`0t~d~2+/~|~`0t~d~2+", [Dia, Mes]).
 
+% Actualiza un libro de una lista de libros y lo deja en la misma posición.
+% Caso Base: Una lista vacía, devuelve la lista vacía.
+actualizarLibro([], _, _, []).
+% Caso 1: Encuentra el libro y se modifica.
+actualizarLibro([LibroActual|Cola], IdBuscado, NuevoEstado, [LibroMod|Cola]):-
+ getIdLibro(LibroActual, Id),
+ Id == IdBuscado,!,
+ setDisponibilidadLibro(LibroActual, NuevoEstado, LibroMod).
+% Caso 2: No es el libro, guardamos en su posición y buscamos en la cola.
+actualizarLibro([LibroActual|Cola], IdBuscado, NuevoEstado, [LibroActual|ColaMod]):-
+ actualizarLibro(Cola, IdBuscado, NuevoEstado, ColaMod).
+
+% Actualiza un usuario de una lista de usuarios y lo deja en la misma posición.
+% Caso Base: Una lista vacía, devuelve la lista vacía.
+actualizarPrestamosUsuario([], _, _, []).
+% Caso 1: Encuentra el usuario y se modifica.
+actualizarPrestamosUsuario([UsuarioActual|Cola], IdBuscado, NuevoPrestamo, [UsuarioMod|Cola]):-
+ getIdUsuario(UsuarioActual, Id),
+ Id == IdBuscado,!,
+ getPrestamosUsuario(Usuario, Prestamos),
+ append(Prestamos, [NuevoPrestamo], PrestamosMod),
+ setPrestamosUsuario(PrestamosMod, Usuario, UsuarioMod).
+% Caso 2: No es el usuario, guardamos en su posición y buscamos en la cola.
+actualizarPrestamosUsuario([UsuarioActual|Cola], IdBuscado, NuevoPrestamo, [UsuarioActual|ColaMod]):-
+ actualizarPrestamosUsuario(Cola, IdBuscado, NuevoPrestamo, ColaMod). 
+ 
  =============================================
  =============================================
  =============================================
@@ -103,7 +129,7 @@ buscarLibro(Biblioteca, "titulo", ValorBuscado, LibroEncontrado):-
  sub_string(TituloEncontrado, _, _, _, BuscMin),!.
 
 % Caso 3: Cuando el criterio es el string "autor".
-BuscarLibro(Biblioteca, "autor", ValorBuscado, LibroEncontrado):-
+buscarLibro(Biblioteca, "autor", ValorBuscado, LibroEncontrado):-
  getLibrosBiblioteca(Biblioteca, ListaLibros),
  string_lower(ValorBuscado, BuscMin),
  member(LibroEncontrado, ListaLibros),
@@ -167,6 +193,47 @@ calcularMulta(Prestamo, FechaActual, TasaMultaDiaria, Multa):-
  Multa is TasaMultaDiaria * DiasRetraso.
 
 % RF18
+% Dom -> (Biblioteca) biblioteca, int id-usuario, int id-libro, int dias-solicitados, string fecha-actual, (Biblioteca) biblioteca
+tomarPrestamo(BIn, Idusuario, IdLibro, DisSolicitados, FechaActual, BOut):-
+ obtenerUsuario(BIn, IdUsuario, Usuario),
+ buscarLibro(BIn, "id", IdLibro, Libro),
+
+ getMaxLibrosUsuarioBiblioteca(BIn, MaxLibrosUsuario),
+ getDiasMaxPrestamoBiblioteca(BIn, DiasMaxPrestamo),
+ getLimiteDeudaBiblioteca(BIn, LimiteDeuda),
+
+ % Condición 1: libro disponible.
+ isLibroDisponible(BIn, IdLibro),
+ % Condición 2: usuario no suspendido.
+ not(isUsuarioSuspendido(Usuario)),
+ % Condición 3: no excede límite de libros.
+ getPrestamosUsuario(Usuario, PrestamosUsuario),
+ length(PrestamosUsuario, CantActual),
+ CantActual < MaxLibrosUsuario,
+ % Condición 4: días solicitados no exceden el máximo.
+ DisSolicitados < DiasMaxPrestamo,
+ % Condición 5: deuda no excede el límite.
+ getDeudaUsuario(Usuario, DeudaActual),
+ DeudaActual < LimiteDeuda,
+
+ getPrestamosBiblioteca(BIn, PrestamosBib),
+ length(PrestamosBib, CantActualBib),
+ NuevoIdPrestamo is CantActualBib + 1,
+
+ crearPrestamo(NuevoIdPrestamo, IdUsuario, IdLibro, FechaActual, DisSolicitados, NuevoPrestamo),
+
+ % Actualizar Entidades.
+ getLibrosBiblioteca(BIn, LibrosBib),
+ actualizarLibro(LibrosBib, IdLibro, false, LibrosMod),
+ setLibrosBiblioteca(LibrosMod, BIn, BTemp1),
+
+ getUsuariosBiblioteca(BTemp1, UsuariosBibTemp1),
+ actualizarPrestamosUsuario(UsuariosBibTemp1, )
+
+ 
+ 
+
+
 
 
  
