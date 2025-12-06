@@ -228,7 +228,12 @@ tomarPrestamo(BIn, Idusuario, IdLibro, DisSolicitados, FechaActual, BOut):-
  setLibrosBiblioteca(LibrosMod, BIn, BTemp1),
 
  getUsuariosBiblioteca(BTemp1, UsuariosBibTemp1),
- actualizarPrestamosUsuario(UsuariosBibTemp1, )
+ actualizarPrestamosUsuario(UsuariosBibTemp1, IdUsuario, NuevoPrestamo, UsuariosMod),
+ setUsuariosBiblioteca(UsuariosMod, BTemp1, BTemp2),
+
+ getPrestamosBiblioteca(BTemp2, PrestamosBibTemp2),
+ append(PrestamosBibTemp2, [NuevoPretamo], PrestamosMod),
+ setPrestamosBiblioteca(PrestamosMod, BTemp2, BOut).
 
  
  
