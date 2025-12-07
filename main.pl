@@ -414,7 +414,10 @@ historialPrestamosSistema(Biblioteca, Str):-
  getPrestamosBiblioteca(Biblioteca, ListaPrestamos)
  construirStringPrestamos(ListaPrestamos, "b", Str).
 
- 
+% RF26
+% Dom -> biblioteca (Biblioteca), biblioteca (Biblioteca)
+procesarDia(BIn, BOut):-
+  
 
 
  
