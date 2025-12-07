@@ -46,6 +46,52 @@ actualizarPrestamosUsuario([UsuarioActual|Cola], IdBuscado, NuevoPrestamo, [Usua
 % Caso 2: No es el usuario, guardamos en su posición y buscamos en la cola.
 actualizarPrestamosUsuario([UsuarioActual|Cola], IdBuscado, NuevoPrestamo, [UsuarioActual|ColaMod]):-
  actualizarPrestamosUsuario(Cola, IdBuscado, NuevoPrestamo, ColaMod). 
+
+% Busca un préstamo hasta que coincidan los ids entregados.
+buscarPrestamo(Biblioteca, IdUsuario, IdLibro, PrestamoEncontrado):-
+  getPrestamosBiblioteca(BIn, ListaPrestamos),
+  member(PrestamoEncontrado, ListaPrestamos),
+  getIdUsuarioPrestamo(PrestamoEncontrado, U), U == IdUsuario,
+  getIdLibroPrestamo(PrestamoEncontrado, L), L == IdLibro.
+
+% Cambia el estado del usuario si es que excedió el límite de deuda.
+% Caso 1: Excede el límite, suspende.
+determinarNuevoEstado(Deuda, Limite, EstadoActual, true):-
+ Deuda > Limite.
+% Caso 2: No excede el límite, mantiene su estado actual.
+determinarNuevoEstado(Deuda, Limite, EstadoActual, EstadoActual):-
+ Deuda =< Limite.
+
+% Actualiza un usuario de la biblioteca.
+actualizarUsuario(BIn, IdUsuario, NuevoUsuario, BOut):-
+ obtenerUsuario(BIn, IdUsuario, UsuarioViejo),
+ getUsuariosBiblioteca(BIn, Usuarios),
+ select(UsuarioViejo, Usuarios, RestoUsuarios),
+ setUsuariosBiblioteca([NuevoUsuario|RestoUsuarios], BIn, BOut).
+
+% Actualiza un prestamo de la biblioteca.
+actualizarPrestamo(BIn, Prestamo, NuevoPrestamo, BOut):-
+ getPrestamosBiblioteca(BIn, ListaPrestamos),
+ select(Prestamo, ListaPrestamos, RestoPrestamos),
+ setPrestamosBiblioteca([NuevoPrestamo|RestoPrestamos], BIn, BOut).
+
+ % Recursivamente va construyendo el string de prestamos.
+ % Caso Base: Lista vacía, devuelve string vacío.
+ construirStringPrestamos([], "").
+
+ % Caso Recursivo: Formatea la cabeza, procesa la cola y une todo.
+ construirStringPrestamos([Prestamo|Resto], StrFinal):-
+  formatearPrestamo(Prestamo, StrP),
+  construirStringPrestamos(Resto, StrResto),
+  string_concat(StrP, StrResto, StrFinal).
+
+ % Formatea un prestamo en su fecha de vencimiento, fecha de inicio y libro prestado.
+ formatearPrestamo(Prestamo, Str):-
+  getIdPrestamo(Prestamo, IdP),
+  getIdLibroPrestamo(Prestamo, IdL),
+  getFechaPrestamo(Prestamo, FechaInicio),
+  obtenerFechaVencimiento(Prestamo, FechaVenc),
+  format(string(Str), "Prestamo #~w - Libro ~w - Prestado: ~w - Vence: ~w - ~w~n", [IdP, IdL, FechaInicio, FechaVenc, Estado]).
  
  =============================================
  =============================================
@@ -155,7 +201,7 @@ isLibroDisponible(Biblioteca, IdLibro):-
 % Dom -> (Usuario) usuario
 isUsuarioSuspendido(Usuario):-
  getSuspendidoUsuario(Usuario, Estado),
- Estado == false.
+ Estado == true.
 
 % RF14
 % Dom -> (Usuario) usuario, int deuda
@@ -238,6 +284,122 @@ tomarPrestamo(BIn, Idusuario, IdLibro, DisSolicitados, FechaActual, BOut):-
 % RF19
 % Dom -> biblioteca (Biblioteca), id-usuario (int), id-libro (int), fecha-actual (string), biblioteca (Biblioteca)
 devolverLibro(BIn, IdUsuario, IdLibro, FechaActual, BOut):-
+ getTasaMultaDiariaBiblioteca(BIn, TasaMultaDiaria),
+ getLimiteDeudaBiblioteca(BIn, LimiteDeuda),
+ buscarPrestamo(BIn, IdUsuario, IdLibro, Prestamo),
+ 
+ calcularMulta(Prestamo, FechaActual, TasaMultaDiaria, Multa),
+ obtenerUsuario(BIn, IdUsuario, Usuario),
+ getDeudaUsuario(Usuario, DeudaActual),
+ NuevaDeuda is DeudaActual + Multa,
+
+ getSuspendidoUsuario(Usuario, EstadoActual),
+ determinarNuevoEstado(DeudaActual, LimiteDeuda, EstadoActual, NuevoEstado),
+ setSuspendidoUsuario(Usuario, NuevoEstado, UsuarioMod),
+ setDeudaUsuario(NuevaDeuda, UsuarioMod, UsuarioMod2)
+ actualizarUsuario(BIn, IdUsuario, UsuarioMod2, BTemp),
+
+ getLibrosBiblioteca(BTemp1, ListaLibros),
+ actualizarLibro(ListaLibros, IdLibro, true, LibrosMod),
+ setLibrosBiblioteca(LibrosMod, BTemp, BOut).
+
+% RF20
+% Dom -> biblioteca (Biblioteca), id-usuario (int), fecha-actual (string)
+% Criterio 1: Excede el limite de deuda?
+debeSuspenderse(BIn, IdUsuario, _),
+ obtenerUsuario(BIn, IdUsuario, Usuario),
+ getLimiteDeudaBiblioteca(BIn, LimiteDeuda),
+ getDeudaUsuario(Usuario, Deuda),
+ Deuda > LimiteDeuda.
+
+% Criterio 2: Alguno de sus prestamos excede el limite de retraso?
+debeSuspenderse(BIn, IdUsuario, FechaActual):-
+ obtenerUsuario(BIn, IdUsuario, Usuario),
+ getDiasMaxRetrasoBiblioteca(BIn, MaxRetraso),
+ getPrestamosUsuario(Usuario, ListaPrestamos),
+
+ member(Prestamo, ListaPrestamos),
+ obtenerFechaVencimiento(Prestamo, FechaVencimiento),
+ calcularDiasRetraso(FechaVencimiento, FechaActual, DiasRetraso),
+ DiasRetraso > MaxRetraso.
+
+% RF21
+% Dom -> biblioteca (Biblioteca), idUsuario (int), biblioteca (Biblioteca)
+suspenderUsuario(BIn, IdUsuario, BOut):-
+ obtenerUsuario(Bin, IdUsuario, Usuario),
+ setSuspendidoUsuario(Usuario, true, UsuarioMod)
+ getUsuariosBiblioteca(BIn, ListaUsuarios),
+ actualizarUsuario(ListaUsuarios, IdUsuario, UsuarioMod, ListaUsuariosMod),
+ setUsuariosBiblioteca(ListaUsuariosMod, BIn, BOut).
+
+% RF22
+% Dom -> biblioteca (Biblioteca), id-prestamo (int), dias-extra (int), fecha-actual (string), biblioteca (Biblioteca)
+renovarPrestamo(BIn, IdPrestamo, DiasExtra, FechaActual, BOut):-
+ getPrestamosBiblioteca(BIn, ListaPrestamos),
+ member(PrestamoEncontrado, ListaPrestamos), getIdPrestamo(PrestamoEncontrado, Id), Id == IdPrestamo,!,
+ 
+ % Condición 1: Préstamo existente y activo.
+ getIdLibroPrestamo(PrestamoEncontrado, IdLibro),
+ not(isLibroDisponible(BIn, IdLibro)),
+ % Condición 2: Usuario no suspendido.
+ getIdUsuarioPrestamo(PrestamoEncontrado, IdUsuario),
+ obtenerUsuario(BIn, IdUsuario, Usuario),
+ not(isUsuarioSuspendido(Usuario)),
+ % Condición 3: No hay retraso.
+ obtenerFechaVencimiento(PrestamoEncontrado, FechaVencimiento),
+ calcularDiasRetraso(FechaVencimiento, FechaActual, DiasRetraso),
+ DiasRetraso == 0,
+ % Condición 4: Días totales no exceden el máximo.
+ getDiasMaxPrestamoBiblioteca(BIn, DiasMax),
+ getDiasSolicitadosPrestamo(PrestamoEncontrado, DiasSoli),
+ DiasMax >= DiasSoli + DiasExtra,
+ NuevosDias is DiasSoli + DiasExtra,
+
+ setDiasSolicitadosPrestamo(NuevosDias, PrestamoEncontrado, PrestamoMod),
+ actualizarPrestamo(BIn, PrestamoEncontrado, PrestamoMod, BOut).
+
+% RF23
+% Dom -> biblioteca (Biblioteca), id-usuario (int), monto (int), biblioteca (Biblioteca)
+% Caso 1: El usuario paga toda su deuda, se reactiva.
+pagarDeuda(BIn, IdUsuario, Monto, BOut):-
+ obtenerUsuario(BIn, IdUsuario, Usuario),
+ getDeudaUsuario(Usuario, Deuda),
+ NuevaDeuda is Deuda - Monto,
+ NuevaDeuda == 0,
+ setDeudaUsuario(NuevaDeuda, Usuario, UsuarioMod),
+ setSuspendidoUsuario(Usuario, false, UsuarioMod2),
+ actualizarUsuario(BIn, IdUsuario, UsuarioMod2, BOut).
+
+% Caso 2: El usuario paga parte de la deuda, solo actualiza su deuda actual.
+pagarDeuda(BIn, IdUsuario, Monto, BOut):-
+ obtenerUsuario(BIn, IdUsuario, Usuario),
+ getDeudaUsuario(Usuario, Deuda),
+ NuevaDeuda is Deuda - Monto,
+ setDeudaUsuario(NuevaDeuda, Usuario, UsuarioMod),
+ actualizarUsuario(BIn, IdUsuario, UsuarioMod, BOut).
+
+% RF24
+% Dom -> biblioteca (Biblioteca), IdUsuario (int), str (String)
+% Caso 1: El usuario no existe.
+historialPrestamosUsuario(BIn, IdUsuario, ""):-
+ not(obtenerUsuario(BIn, IdUsuario, _)).
+
+% Caso 2: El usuario si existe.
+historialPrestamosUsuario(BIn, IdUsuario, Str):-
+ obtenerUsuario(BIn, IdUsuario, Usuario),
+ getPrestamosUsuario(Usuario, ListaPrestamos),
+ construirStringPrestamos(ListaPrestamos, CuerpoString),
+ format(string(Cabeza), "Historial Usuario ~d:~n", [IdUsuario]),
+ string_concat(Cabeza, CuerpoString, Str).
+
+% RF25
+% Dom -> biblioteca (Biblioteca), str (String)
+historialPrestamosSistema()
+ 
+
+
+ 
+ 
 
 
  
