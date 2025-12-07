@@ -236,6 +236,8 @@ tomarPrestamo(BIn, Idusuario, IdLibro, DisSolicitados, FechaActual, BOut):-
  setPrestamosBiblioteca(PrestamosMod, BTemp2, BOut).
 
  
+
+ 
  
 
 
