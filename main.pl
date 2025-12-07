@@ -79,19 +79,33 @@ actualizarPrestamo(BIn, Prestamo, NuevoPrestamo, BOut):-
  % Caso Base: Lista vacía, devuelve string vacío.
  construirStringPrestamos([], "").
 
- % Caso Recursivo: Formatea la cabeza, procesa la cola y une todo.
- construirStringPrestamos([Prestamo|Resto], StrFinal):-
-  formatearPrestamo(Prestamo, StrP),
+ % Caso Recursivo: Formatea la cabeza, procesa la cola y une todo (PARA HISTORIAL USUARIO).
+ construirStringPrestamos([Prestamo|Resto], "u", StrFinal):-
+  formatearPrestamo(Prestamo, "u", StrP),
   construirStringPrestamos(Resto, StrResto),
   string_concat(StrP, StrResto, StrFinal).
 
- % Formatea un prestamo en su fecha de vencimiento, fecha de inicio y libro prestado.
- formatearPrestamo(Prestamo, Str):-
+ % Caso Recursivo: Formatea la cabeza, procesa la cola y une todo (PARA HISTORIAL BIBLIOTECA).
+ construirStringPrestamos([Prestamo|Resto], "b", StrFinal):-
+  formatearPrestamo(Prestamo, "b", StrP),
+  construirStringPrestamos(Resto, StrResto),
+  string_concat(StrP, StrResto, StrFinal).
+
+ % Formatea un prestamo en su fecha de vencimiento, fecha de inicio y libro prestado (PARA HISTORIAL USUARIO).
+ formatearPrestamo(Prestamo, "u", Str):-
   getIdPrestamo(Prestamo, IdP),
   getIdLibroPrestamo(Prestamo, IdL),
   getFechaPrestamo(Prestamo, FechaInicio),
   obtenerFechaVencimiento(Prestamo, FechaVenc),
   format(string(Str), "Prestamo #~w - Libro ~w - Prestado: ~w - Vence: ~w - ~w~n", [IdP, IdL, FechaInicio, FechaVenc, Estado]).
+
+% Lo mismo, pero con el id del usuario y días solicitados (PARA HISTORIAL BIBLIOTECA).
+  formatearPrestamo(Prestamo, "b", Str):-
+  getIdPrestamo(Prestamo, IdP),
+  getIdLibroPrestamo(Prestamo, IdL),
+  getFechaPrestamo(Prestamo, FechaInicio),
+  obtenerFechaVencimiento(Prestamo, FechaVenc),
+  format(string(Str), "Prestamo #~w - Usuario ~w - Libro ~w - Fecha: ~w - Vence: ~w - ~w~n", [IdP, IdL, FechaInicio, FechaVenc, Estado]).
  
  =============================================
  =============================================
@@ -394,7 +408,10 @@ historialPrestamosUsuario(BIn, IdUsuario, Str):-
 
 % RF25
 % Dom -> biblioteca (Biblioteca), str (String)
-historialPrestamosSistema()
+historialPrestamosSistema(Biblioteca, Str):-
+ getPrestamosBiblioteca(Biblioteca, ListaPrestamos)
+ construirStringPrestamos(ListaPrestamos, Str).
+
  
 
 
