@@ -404,7 +404,7 @@ historialPrestamosUsuario(BIn, IdUsuario, ""):-
 historialPrestamosUsuario(BIn, IdUsuario, Str):-
  obtenerUsuario(BIn, IdUsuario, Usuario),
  getPrestamosUsuario(Usuario, ListaPrestamos),
- construirStringPrestamos(ListaPrestamos, CuerpoString),
+ construirStringPrestamos(ListaPrestamos, "u", CuerpoString),
  format(string(Cabeza), "Historial Usuario ~d:~n", [IdUsuario]),
  string_concat(Cabeza, CuerpoString, Str).
 
@@ -412,7 +412,7 @@ historialPrestamosUsuario(BIn, IdUsuario, Str):-
 % Dom -> biblioteca (Biblioteca), str (String)
 historialPrestamosSistema(Biblioteca, Str):-
  getPrestamosBiblioteca(Biblioteca, ListaPrestamos)
- construirStringPrestamos(ListaPrestamos, Str).
+ construirStringPrestamos(ListaPrestamos, "b", Str).
 
  
 
