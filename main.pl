@@ -97,15 +97,17 @@ actualizarPrestamo(BIn, Prestamo, NuevoPrestamo, BOut):-
   getIdLibroPrestamo(Prestamo, IdL),
   getFechaPrestamo(Prestamo, FechaInicio),
   obtenerFechaVencimiento(Prestamo, FechaVenc),
-  format(string(Str), "Prestamo #~w - Libro ~w - Prestado: ~w - Vence: ~w - ~w~n", [IdP, IdL, FechaInicio, FechaVenc, Estado]).
+  format(string(Str), "Prestamo #~w - Libro ~w - Prestado: ~w - Vence: ~w~n", [IdP, IdL, FechaInicio, FechaVenc]).
 
 % Lo mismo, pero con el id del usuario y días solicitados (PARA HISTORIAL BIBLIOTECA).
   formatearPrestamo(Prestamo, "b", Str):-
   getIdPrestamo(Prestamo, IdP),
+  getIdaUsuarioPrestamo(Prestamo, IdU)
   getIdLibroPrestamo(Prestamo, IdL),
   getFechaPrestamo(Prestamo, FechaInicio),
+  getDiasSolicitadosPrestamo(Prestamo, DiasSoli)
   obtenerFechaVencimiento(Prestamo, FechaVenc),
-  format(string(Str), "Prestamo #~w - Usuario ~w - Libro ~w - Fecha: ~w - Vence: ~w - ~w~n", [IdP, IdL, FechaInicio, FechaVenc, Estado]).
+  format(string(Str), "Prestamo #~w - Usuario ~w - Libro ~w - Fecha: ~w - Dias: ~w~n", [IdP, IdU, IdL, FechaInicio, DiasSoli]).
  
  =============================================
  =============================================
