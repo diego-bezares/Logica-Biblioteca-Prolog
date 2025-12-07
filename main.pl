@@ -235,7 +235,10 @@ tomarPrestamo(BIn, Idusuario, IdLibro, DisSolicitados, FechaActual, BOut):-
  append(PrestamosBibTemp2, [NuevoPretamo], PrestamosMod),
  setPrestamosBiblioteca(PrestamosMod, BTemp2, BOut).
 
- 
+% RF19
+% Dom -> biblioteca (Biblioteca), id-usuario (int), id-libro (int), fecha-actual (string), biblioteca (Biblioteca)
+devolverLibro(BIn, IdUsuario, IdLibro, FechaActual, BOut):-
+
 
  
  
