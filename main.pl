@@ -108,18 +108,22 @@ actualizarPrestamo(BIn, Prestamo, NuevoPrestamo, BOut):-
   getDiasSolicitadosPrestamo(Prestamo, DiasSoli)
   obtenerFechaVencimiento(Prestamo, FechaVenc),
   format(string(Str), "Prestamo #~w - Usuario ~w - Libro ~w - Fecha: ~w - Dias: ~w~n", [IdP, IdU, IdL, FechaInicio, DiasSoli]).
-
+  
+% Actualliza toda la lista de usuarios de la biblioteca, a partir del cambio de fecha.
+% Caso Base: Lista vacía, entrega lista vacía.
 actualizarUsuariosBib([], _, _, []).
-
+% Caso Recursivo: Se saca la cabeza de la lista y se procesa individualmente, luego se repite con el resto de la lista.
 actualizarUsuariosBib([UsuarioActual|RestoUsuarios], Biblioteca, Fecha, [UsuarioProcesado|RestoProcesado]):-
   procesarUsuario(UsuarioActual, Biblioteca, Fecha, UsuarioProcesado),
   actualizarUsuariosBib(RestoUsuarios, Biblioteca, Fecha, RestoProcesado).
-
+  
+% Determina si el usuario se debe suspender con la nueva fecha.
+% Caso 1: Si debe suspenderse, se actualiza su estado.
 procesarUsuario(Usuario, Biblioteca, Fecha, UsuarioSuspendido):-
   getIdUsuario(Usuario, Id),
   debeSuspenderse(Biblioteca, Id, Fecha),!,
   setSuspendidoUsuario(Usuario, true, UsuarioSuspendido).
-
+% Caso 2: No debe suspenderse, se mantiene igual.
 procesarUsuario(Usuario, Biblioteca, Fecha, Usuario):-
   getIdUsuario(Usuario, Id),
   not(debeSuspenderse(Biblioteca, Id, Fecha).
