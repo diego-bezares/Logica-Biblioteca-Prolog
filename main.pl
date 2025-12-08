@@ -116,6 +116,9 @@ actualizarUsuariosBib([UsuarioActual|RestoUsuarios], Biblioteca, Fecha, [Usuario
   actualizarUsuariosBib(RestoUsuarios, Biblioteca, Fecha, RestoProcesado).
 
 procesarUsuario(Usuario, Biblioteca, Fecha, UsuarioSuspendido):-
+  getIdUsuario(Usuario, Id),
+  debeSuspenderse(Biblioteca, Id, Fecha),!,
+  
   
  
  =============================================
