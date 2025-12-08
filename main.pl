@@ -418,6 +418,7 @@ historialPrestamosSistema(Biblioteca, Str):-
 % Dom -> biblioteca (Biblioteca), biblioteca (Biblioteca)
 procesarDia(BIn, BOut):-
   
+  
 
 
  
