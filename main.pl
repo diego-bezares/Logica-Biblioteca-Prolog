@@ -108,6 +108,15 @@ actualizarPrestamo(BIn, Prestamo, NuevoPrestamo, BOut):-
   getDiasSolicitadosPrestamo(Prestamo, DiasSoli)
   obtenerFechaVencimiento(Prestamo, FechaVenc),
   format(string(Str), "Prestamo #~w - Usuario ~w - Libro ~w - Fecha: ~w - Dias: ~w~n", [IdP, IdU, IdL, FechaInicio, DiasSoli]).
+
+actualizarUsuariosBib([], _, _, []).
+
+actualizarUsuariosBib([UsuarioActual|RestoUsuarios], Biblioteca, Fecha, [UsuarioProcesado|RestoProcesado]):-
+  procesarUsuario(UsuarioActual, Biblioteca, Fecha, UsuarioProcesado),
+  actualizarUsuariosBib(RestoUsuarios, Biblioteca, Fecha, RestoProcesado).
+
+procesarUsuario(Usuario, Biblioteca, Fecha, UsuarioSuspendido):-
+  
  
  =============================================
  =============================================
@@ -421,6 +430,8 @@ procesarDia(BIn, BOut):-
   fechaToDias(FechaActual, DiasTot),
   NuevosDiasTot is DiasTot + 1,
   diasToFecha(NuevosDiasTot, NuevaFecha),
+  setFechaInicialBiblioteca(NuevaFecha, BIn, BTemp1),
+  
   
   
   
