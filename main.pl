@@ -118,7 +118,11 @@ actualizarUsuariosBib([UsuarioActual|RestoUsuarios], Biblioteca, Fecha, [Usuario
 procesarUsuario(Usuario, Biblioteca, Fecha, UsuarioSuspendido):-
   getIdUsuario(Usuario, Id),
   debeSuspenderse(Biblioteca, Id, Fecha),!,
-  
+  setSuspendidoUsuario(Usuario, true, UsuarioSuspendido).
+
+procesarUsuario(Usuario, Biblioteca, Fecha, Usuario):-
+  getIdUsuario(Usuario, Id),
+  not(debeSuspenderse(Biblioteca, Id, Fecha).
   
  
  =============================================
@@ -435,7 +439,9 @@ procesarDia(BIn, BOut):-
   diasToFecha(NuevosDiasTot, NuevaFecha),
   setFechaInicialBiblioteca(NuevaFecha, BIn, BTemp1),
   
-  
+  getUsuariosBiblioteca(BTemp1, ListaUsuarios),
+  actualizarUsuariosBib(ListaUsuarios, BTemp1, NuevaFecha, UsuariosMod),
+  setUsuariodBiblioteca(UsuariosMod, BTemp1, BOut).
   
   
 
