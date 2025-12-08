@@ -417,6 +417,11 @@ historialPrestamosSistema(Biblioteca, Str):-
 % RF26
 % Dom -> biblioteca (Biblioteca), biblioteca (Biblioteca)
 procesarDia(BIn, BOut):-
+  getFechaInicialBiblioteca(BIn, FechaActual),
+  fechaToDias(FechaActual, DiasTot),
+  NuevosDiasTot is DiasTot + 1,
+  diasToFecha(NuevosDiasTot, NuevaFecha),
+  
   
   
 
